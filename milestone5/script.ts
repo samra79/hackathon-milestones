@@ -1,13 +1,13 @@
 // Get references to the form and display area
-const form = document.getElementById('resumeForm') as HTMLFormElement; // Updated to match HTML ID
+const form = document.getElementById('resumeForm') as HTMLFormElement;
 const resumeDisplayElement = document.getElementById('resumeDisplay') as HTMLDivElement;
 
 const shareableLinkContainer = document.getElementById('shareable-link-container') as HTMLDivElement;
-const shareableLinkElement = document.getElementById('shareable-link') as HTMLAnchorElement; // Updated to match HTML ID
+const shareableLinkElement = document.getElementById('shareable-link') as HTMLAnchorElement;
 const downloadPDFButton = document.getElementById('download-pdf') as HTMLButtonElement;
 
 // Handle form submission
-form.addEventListener('submit', (event: Event) => {
+form.addEventListener('submit', async (event: Event) => {
     event.preventDefault();
 
     // Collect input values
@@ -18,14 +18,22 @@ form.addEventListener('submit', (event: Event) => {
     const education = (document.getElementById('education') as HTMLTextAreaElement).value;
     const experience = (document.getElementById('experience') as HTMLTextAreaElement).value;
     const skills = (document.getElementById('skills') as HTMLTextAreaElement).value;
+    
+    // Profile picture
+    const profilePictureInput = document.getElementById('profilePicture') as HTMLInputElement;
+    let profilePictureURL = '';
 
-    // Save form data in localStorage with the username as the key
-    const resumeData = { name, email, phone, education, experience, skills };
-    localStorage.setItem(username, JSON.stringify(resumeData));
+    // Check if a picture was uploaded
+    if (profilePictureInput.files && profilePictureInput.files[0]) {
+        // Create a URL for the uploaded image file
+        profilePictureURL = URL.createObjectURL(profilePictureInput.files[0]);
+    }
 
     // Generate the resume content dynamically
     const resumeHTML = `
-        <h2>Editable Resume</h2>
+        <h2>Editable & Shareable Resume</h2>
+                ${profilePictureURL ? `<img src="${profilePictureURL}" alt="Profile Picture" width="100" height="100"><br>` : ''}
+
         <h3>Personal Information</h3>
         <p><strong>Name:</strong> ${name}</p>
         <p><strong>Email:</strong> ${email}</p>
@@ -50,24 +58,4 @@ form.addEventListener('submit', (event: Event) => {
 // Handle PDF download
 downloadPDFButton.addEventListener('click', () => {
     window.print();
-});
-
-// Prefill the form based on the username in the URL
-window.addEventListener('DOMContentLoaded', () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const username = urlParams.get('username');
-    if (username) {
-        // Autofill form if data is found in localStorage
-        const savedResumeData = localStorage.getItem(username);
-        if (savedResumeData) {
-            const resumeData = JSON.parse(savedResumeData);
-            (document.getElementById('username') as HTMLInputElement).value = username;
-            (document.getElementById('name') as HTMLInputElement).value = resumeData.name;
-            (document.getElementById('email') as HTMLInputElement).value = resumeData.email;
-            (document.getElementById('phone') as HTMLInputElement).value = resumeData.phone;
-            (document.getElementById('education') as HTMLTextAreaElement).value = resumeData.education;
-            (document.getElementById('experience') as HTMLTextAreaElement).value = resumeData.experience;
-            (document.getElementById('skills') as HTMLTextAreaElement).value = resumeData.skills;
-        }
-    }
 });
